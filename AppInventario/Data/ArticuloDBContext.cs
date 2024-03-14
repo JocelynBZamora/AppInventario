@@ -113,13 +113,29 @@ namespace AppInventario.Data
                 await connection.OpenAsync();
                 var command = connection.CreateCommand();
                 command.CommandText = (@"DELTE FROM articulo WHERE id = $id");
-                command.Parameters.Remove("id");
-                await command.ExecuteNonQueryAsync();
+                command.Parameters.AddWithValue("$id", id);
+                //command.Parameters.Remove("id");
+                await command.ExecuteScalarAsync();
             }
         }
         public async Task Actualizar(Articulos articulos) 
         {
+            using(var connection =  new SqliteConnection(_ConectionString)) 
+            {
+                await connection.OpenAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = (@"UPDATE articulos
+                                        SET descripcion = $descripcio,
+                                        precio = $precio,
+                                        existencia =$existencia
+                                        WHERE id = $id");
+                command.Parameters.AddWithValue("$descripcion",articulos.descripcion);
+                command.Parameters.AddWithValue("$precio", articulos.precio);
+                command.Parameters.AddWithValue("$existencia", articulos.existencia);
+                command.Parameters.AddWithValue("$id",articulos.id);
+                await command.ExecuteScalarAsync(); 
 
+            }
         }
 
     }
