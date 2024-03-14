@@ -37,16 +37,89 @@ namespace AppInventario.Data
             {
                 await conection.OpenAsync();
                 var command = conection.CreateCommand();
-                command.CommandText=(@"INSERT INTO articulos
+                command.CommandText = (@"INSERT INTO articulos
                                     (descripcion,precio,existencia)
                                     values ($descripcion,$precio$existencia)");
-                command.Parameters.AddWithValue("$descripcion",articulos.descripcion);
-                command.Parameters.AddWithValue("$precio",articulos.precio);
+                command.Parameters.AddWithValue("$descripcion", articulos.descripcion);
+                command.Parameters.AddWithValue("$precio", articulos.precio);
                 command.Parameters.AddWithValue("$existencia", articulos.existencia);
                 await command.ExecuteNonQueryAsync();
 
 
             }
+        }
+        //CRUD
+        public async Task<Articulos?> GetById(int id)
+        {
+            Articulos? articulo = null;
+            if (id <= 0)
+            {
+                throw new ArgumentException("El id no es mayor a 0");
+            }
+            using (var conection = new SqliteConnection(_ConectionString))
+            {
+                await conection.OpenAsync();
+                var command = conection.CreateCommand();
+                command.CommandText = @"SELECT * FROM articulos 
+                                                WHERE id = $id";
+                command.Parameters.AddWithValue("$id", id);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    await reader.ReadAsync();
+                    articulo = new Articulos
+                    {
+                        id = reader.GetInt32(0),
+                        descripcion = reader.GetString(1),
+                        precio = reader.GetDecimal(2),
+                        existencia = reader.GetInt32(3)
+                    };
+
+
+                }
+            }
+            return articulo;
+        }
+        public async Task<IEnumerable<Articulos>> GetAll()
+        {
+            List<Articulos> ?listarticulo = null;
+            using (var connection = new SqliteConnection(_ConectionString)) 
+            {
+                await connection.OpenAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = @"SELECT id,descripcion,precio,existencia
+                                        FORM articulos";
+                var rader = await command.ExecuteReaderAsync();
+                while(await rader.ReadAsync()) 
+                {
+                    if (listarticulo == null) 
+                    {
+                        listarticulo = new List<Articulos> { };
+                    }
+                    listarticulo.Add(new Articulos
+                    {
+                        id = rader.GetInt32(0),
+                        descripcion = rader.GetString(1),
+                        precio = rader.GetDecimal(2),
+                        existencia = rader.GetInt32(3)
+                    });
+                }
+                return listarticulo;
+            }
+        }
+        public async Task Eliminar(int id) 
+        {
+            using (var connection = new SqliteConnection(_ConectionString)) 
+            {
+                await connection.OpenAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = (@"DELTE FROM articulo WHERE id = $id");
+                command.Parameters.Remove("id");
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+        public async Task Actualizar(Articulos articulos) 
+        {
+
         }
 
     }
