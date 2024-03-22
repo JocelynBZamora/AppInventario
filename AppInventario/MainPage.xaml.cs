@@ -1,4 +1,7 @@
-﻿namespace AppInventario
+﻿using AppInventario.Data;
+using AppInventario.Models;
+
+namespace AppInventario
 {
     public partial class MainPage : ContentPage
     {
@@ -9,16 +12,41 @@
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+
+        private async void ContentPage_Loaded(object sender, EventArgs e)
         {
-            count++;
+            var db = new ArticuloDBContext();//se crea la tabla
+            //var aticulo3 = new Articulos()
+            //{
+            //    descripcion = "Angelito 600gr.",
+            //    precio = 5,
+            //    existencia = 1
+            //};
+            //db.Agregar(aticulo3);
+            var articulo = await db.GetById(1);
+            //articulo.precio = 48;
+            await db.Eliminar(1);
+            var lista = db.GetAll();
+        }
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+        private void Button_Clicked(object sender, EventArgs e)
+        {
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+        }
+
+        private void Button_Clicked_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Button_Clicked_2(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Button_Clicked_3(object sender, EventArgs e)
+        {
+
         }
     }
 
